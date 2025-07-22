@@ -6,12 +6,12 @@ server:
 # Redis란 데이터를 메모리(RAM)에 저장하는 초고속 데이터베이스, 데이터 캐시 용도로 사용됨
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/stacksticker
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5432/notice_board
+    username: parkjuyeong
+    password: 1234
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
 
   redis:
