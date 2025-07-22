@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+# 데이터베이스는 postgres 사용
+# JPA란 자바 프로그래밍 언어를 위한 영속성 관리 라이브러리, hibernate 사용
+# Redis란 데이터를 메모리(RAM)에 저장하는 초고속 데이터베이스, 데이터 캐시 용도로 사용됨
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/stacksticker
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  redis:
+    host: localhost
+    port: 6379
