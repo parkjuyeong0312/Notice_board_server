@@ -4,11 +4,16 @@
 package org.example;
 
 import org.junit.jupiter.api.Test;
+
+import com.notice_board.notice_board.NoticeBoardApplication;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
     @Test void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
+        // NoticeBoardApplication에는 getGreeting() 메서드가 없으므로, 임시로 애플리케이션 컨텍스트가 정상적으로 생성되는지 테스트합니다.
+        assertDoesNotThrow(() -> {
+            NoticeBoardApplication.main(new String[]{});
+        }, "애플리케이션이 정상적으로 실행되어야 합니다.");
     }
 }

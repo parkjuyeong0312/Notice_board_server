@@ -36,13 +36,13 @@ public class Post {
 
     @Column(nullable = false)
     private String title;
-
+    
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -52,7 +52,7 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
+    
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 

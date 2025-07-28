@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 5432
 
 # 데이터베이스는 postgres 사용
 # JPA란 자바 프로그래밍 언어를 위한 영속성 관리 라이브러리, hibernate 사용
