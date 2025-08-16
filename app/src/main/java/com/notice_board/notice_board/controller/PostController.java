@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/posts")
-@CrossOrigin(origins = "localhost:3000")
+@RequestMapping("/api/v1/posts")
+@CrossOrigin(origins = "*")
 public class PostController {
     //[TODO] PostService 의존성 주입(나중에 구현)
     //private final PostService postService;
@@ -145,7 +145,6 @@ public class PostController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size
     ) {
-
         Map<String, Object> response = Map.of(
             "message", "좋아요 목록 조회 - 구현예정",
             "data", List.of(),
