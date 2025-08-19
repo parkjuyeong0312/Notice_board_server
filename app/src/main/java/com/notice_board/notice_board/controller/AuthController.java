@@ -2,8 +2,10 @@ package com.notice_board.notice_board.controller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,13 +14,20 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.notice_board.notice_board.security.CustomUserPrincipal;
+import com.notice_board.notice_board.service.AuthService;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @CrossOrigin(origins = "*")
 public class AuthController {
     
-    //[TODO] AuthService 의존성 주입(나중에 구현)
-    //private final AuthService authService;
+    private final AuthService authService;
+    
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     /*
      * 회원가입
@@ -27,21 +36,28 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> register(@RequestBody Map<String, Object> registerData) {
         
-        //[TODO] 회원가입 로직 구현
-        //[TODO] 이메일 중복 검사
-        //[TODO] 비밀번호 암호화
-        //[TODO] 사용자 생성
-        Map<String, Object> response = Map.of(
-            "message", "회원가입 성공 - 구현예정",
-            "data", Map.of(
-                "id", 1L,
-                "email", registerData.get("email"),
-                "nickname", registerData.get("nickname"),
-                "name", registerData.get("name")
-            )
-        );
-        
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            String email = (String) registerData.get("email");
+            String password = (String) registerData.get("password");
+            String name = (String) registerData.get("name");
+            String nickname = (String) registerData.get("nickname");
+            
+            Map<String, Object> response = authService.register(email, password, name, nickname);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", "회원가입 중 오류가 발생했습니다."
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     /*
@@ -51,24 +67,26 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, Object> loginData) {
         
-        //[TODO] 로그인 로직 구현
-        //[TODO] 이메일/비밀번호 검증
-        //[TODO] JWT 토큰 생성
-        Map<String, Object> response = Map.of(
-            "message", "로그인 성공 - 구현예정",
-            "data", Map.of(
-                "user", Map.of(
-                    "id", 1L,
-                    "email", loginData.get("email"),
-                    "nickname", "테스트유저"
-                ),
-                "accessToken", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", // 임시 토큰
-                "tokenType", "Bearer",
-                "expiresIn", 3600
-            )
-        );
-        
-        return ResponseEntity.ok(response);
+        try {
+            String email = (String) loginData.get("email");
+            String password = (String) loginData.get("password");
+            
+            Map<String, Object> response = authService.login(email, password);
+            return ResponseEntity.ok(response);
+            
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", "로그인 중 오류가 발생했습니다."
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 
     /*
@@ -95,21 +113,98 @@ public class AuthController {
      */
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(
-            @RequestHeader(value = "Authorization", required = false) String authorization) {
+            @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
         
-        //[TODO] 현재 사용자 정보 조회 로직 구현
-        //[TODO] JWT 토큰에서 사용자 정보 추출
-        Map<String, Object> response = Map.of(
-            "message", "현재 사용자 정보 조회 - 구현예정",
-            "data", Map.of(
-                "id", 1L,
-                "email", "user@example.com",
-                "nickname", "테스트유저",
-                "name", "홍길동",
-                "createdAt", "2024-01-01T10:00:00"
-            )
-        );
+        try {
+            if (userPrincipal == null) {
+                Map<String, Object> errorResponse = Map.of(
+                    "success", false,
+                    "message", "인증이 필요합니다."
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+            
+            Map<String, Object> response = authService.getCurrentUser(userPrincipal.getId());
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", "사용자 정보 조회 중 오류가 발생했습니다."
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /*
+     * 토큰 갱신
+     * POST /api/v1/auth/refresh
+     */
+    @PostMapping("/refresh")
+    public ResponseEntity<Map<String, Object>> refreshToken(@RequestBody Map<String, Object> refreshData) {
         
-        return ResponseEntity.ok(response);
+        try {
+            String refreshToken = (String) refreshData.get("refreshToken");
+            
+            Map<String, Object> response = authService.refreshToken(refreshToken);
+            return ResponseEntity.ok(response);
+            
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", "토큰 갱신 중 오류가 발생했습니다."
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /*
+     * 비밀번호 변경
+     * POST /api/v1/auth/change-password
+     */
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @AuthenticationPrincipal CustomUserPrincipal userPrincipal,
+            @RequestBody Map<String, Object> passwordData) {
+        
+        try {
+            if (userPrincipal == null) {
+                Map<String, Object> errorResponse = Map.of(
+                    "success", false,
+                    "message", "인증이 필요합니다."
+                );
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+            }
+            
+            String currentPassword = (String) passwordData.get("currentPassword");
+            String newPassword = (String) passwordData.get("newPassword");
+            
+            authService.changePassword(userPrincipal.getId(), currentPassword, newPassword);
+            
+            Map<String, Object> response = Map.of(
+                "success", true,
+                "message", "비밀번호가 성공적으로 변경되었습니다."
+            );
+            return ResponseEntity.ok(response);
+            
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", e.getMessage()
+            );
+            return ResponseEntity.badRequest().body(errorResponse);
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = Map.of(
+                "success", false,
+                "message", "비밀번호 변경 중 오류가 발생했습니다."
+            );
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
     }
 }
