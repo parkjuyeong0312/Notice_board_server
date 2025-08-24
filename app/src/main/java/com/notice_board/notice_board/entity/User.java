@@ -3,6 +3,15 @@ package com.notice_board.notice_board.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+
+// id: 사용자 고유 식별자
+// email: 사용자 이메일
+// password: 사용자 비밀번호
+// name: 사용자 이름
+// nickname: 사용자 닉네임
+// createdAt: 사용자 생성 시간
+// updatedAt: 사용자 수정 시간
+
 @Entity
 @Table(name = "users")
 public class User {

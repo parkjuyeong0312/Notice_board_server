@@ -3,6 +3,15 @@ package com.notice_board.notice_board.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+
+//id: 댓글 고유 식별자
+//content: 댓글 내용
+//post: 댓글이 속한 게시글
+//user: 댓글 작성자
+//createdAt: 댓글 작성 시간
+//updatedAt: 댓글 수정 시간
+
+
 @Entity
 @Table(name = "comments")
 public class Comment {

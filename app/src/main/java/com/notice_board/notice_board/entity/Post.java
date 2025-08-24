@@ -3,6 +3,13 @@ package com.notice_board.notice_board.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+// id: 게시글 고유 식별자
+// title: 게시글 제목
+// content: 게시글 내용
+// user: 게시글 작성자
+// createdAt: 게시글 작성 시간
+// updatedAt: 게시글 수정 시간
+
 @Entity
 @Table(name = "posts")
 public class Post {

@@ -3,6 +3,12 @@ package com.notice_board.notice_board.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+//주요필드 이름:설명
+//id: 좋아요 고유 식별자
+//post: 좋아요가 속한 게시글
+//user: 좋아요 작성자
+//createdAt: 좋아요 작성 시간
+
 @Entity
 @Table(name = "likes")
 public class Like {
