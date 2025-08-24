@@ -1,167 +1,51 @@
 package com.notice_board.notice_board.service;
 
+import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.notice_board.notice_board.entity.User;
-import com.notice_board.notice_board.security.CustomUserPrincipal;
-import com.notice_board.notice_board.security.JwtTokenProvider;
-
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @Service
-@Transactional
 public class AuthServiceImpl implements AuthService {
-    
-    private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final AuthenticationManager authenticationManager;
-    
-    @Autowired
-    public AuthServiceImpl(UserService userService,
-                          JwtTokenProvider jwtTokenProvider,
-                          AuthenticationManager authenticationManager) {
-        this.userService = userService;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationManager = authenticationManager;
-    }
-    
+
+    // Task 1.3: 기본 구조만 구현
     @Override
     public Map<String, Object> register(String email, String password, String name, String nickname) {
-        // UserService를 통해 사용자 생성 (중복 검사 및 암호화 포함)
-        User savedUser = userService.registerUser(email, password, name, nickname);
-        
-        // 회원가입 후 즉시 JWT 토큰 발급 (자동 로그인)
-        String accessToken = jwtTokenProvider.generateAccessToken(email, savedUser.getId());
-        String refreshToken = jwtTokenProvider.generateRefreshToken(email, savedUser.getId());
-        
-        // 응답 데이터 구성
         Map<String, Object> response = new HashMap<>();
-        response.put("user", createUserResponse(savedUser));
-        response.put("accessToken", accessToken);
-        response.put("refreshToken", refreshToken);
-        response.put("tokenType", "Bearer");
-        response.put("expiresIn", 3600); // 1시간
-        response.put("message", "회원가입 및 로그인이 완료되었습니다.");
-        
-        log.info("회원가입 및 자동 로그인 완료: {}", email);
+        response.put("success", true);
+        response.put("message", "회원가입 서비스 - 기본 구조만 구현됨");
+        response.put("data", null);
         return response;
     }
-    
+
     @Override
     public Map<String, Object> login(String email, String password) {
-        try {
-            // 인증 수행
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, password)
-            );
-            
-            CustomUserPrincipal userPrincipal = (CustomUserPrincipal) authentication.getPrincipal();
-            
-            // JWT 토큰 생성
-            String accessToken = jwtTokenProvider.generateAccessToken(email, userPrincipal.getId());
-            String refreshToken = jwtTokenProvider.generateRefreshToken(email, userPrincipal.getId());
-            
-            // 응답 데이터 구성
-            Map<String, Object> response = new HashMap<>();
-            response.put("user", createUserResponse(userPrincipal));
-            response.put("accessToken", accessToken);
-            response.put("refreshToken", refreshToken);
-            response.put("tokenType", "Bearer");
-            response.put("expiresIn", 3600); // 1시간
-            response.put("message", "로그인이 완료되었습니다.");
-            
-            log.info("로그인 성공: {}", email);
-            return response;
-            
-        } catch (AuthenticationException e) {
-            log.warn("로그인 실패: {}", email);
-            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "로그인 서비스 - 기본 구조만 구현됨");
+        response.put("data", null);
+        return response;
     }
-    
+
+    @Override
+    public Map<String, Object> getCurrentUser(Long userId) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("message", "사용자 정보 조회 서비스 - 기본 구조만 구현됨");
+        response.put("data", null);
+        return response;
+    }
+
     @Override
     public Map<String, Object> refreshToken(String refreshToken) {
-        // 토큰 유효성 검증
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw new IllegalArgumentException("유효하지 않은 refresh token입니다.");
-        }
-        
-        // Refresh Token인지 확인
-        if (!jwtTokenProvider.isRefreshToken(refreshToken)) {
-            throw new IllegalArgumentException("refresh token이 아닙니다.");
-        }
-        
-        // 토큰에서 사용자 정보 추출
-        String email = jwtTokenProvider.getEmailFromToken(refreshToken);
-        Long userId = jwtTokenProvider.getUserIdFromToken(refreshToken);
-        
-        // 새로운 Access Token 생성
-        String newAccessToken = jwtTokenProvider.generateAccessToken(email, userId);
-        
-        // 응답 데이터 구성
         Map<String, Object> response = new HashMap<>();
-        response.put("accessToken", newAccessToken);
-        response.put("tokenType", "Bearer");
-        response.put("expiresIn", 3600); // 1시간
-        response.put("message", "토큰이 갱신되었습니다.");
-        
-        log.info("토큰 갱신 완료: {}", email);
+        response.put("success", true);
+        response.put("message", "토큰 갱신 서비스 - 기본 구조만 구현됨");
+        response.put("data", null);
         return response;
     }
-    
-    @Override
-    @Transactional(readOnly = true)
-    public Map<String, Object> getCurrentUser(Long userId) {
-        User user = userService.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId));
-        
-        Map<String, Object> response = new HashMap<>();
-        response.put("user", createUserResponse(user));
-        response.put("message", "사용자 정보 조회 완료");
-        
-        return response;
-    }
-    
+
     @Override
     public void changePassword(Long userId, String currentPassword, String newPassword) {
-        // UserService를 통해 비밀번호 변경 (검증 로직 포함)
-        userService.changePassword(userId, currentPassword, newPassword);
-        
-        log.info("비밀번호 변경 완료: userId={}", userId);
-    }
-    
-    /**
-     * 사용자 응답 데이터 생성
-     */
-    private Map<String, Object> createUserResponse(User user) {
-        Map<String, Object> userResponse = new HashMap<>();
-        userResponse.put("id", user.getId());
-        userResponse.put("email", user.getEmail());
-        userResponse.put("name", user.getName());
-        userResponse.put("nickname", user.getNickname());
-        userResponse.put("createdAt", user.getCreatedAt());
-        return userResponse;
-    }
-    
-    /**
-     * 사용자 응답 데이터 생성 (CustomUserPrincipal 버전)
-     */
-    private Map<String, Object> createUserResponse(CustomUserPrincipal userPrincipal) {
-        Map<String, Object> userResponse = new HashMap<>();
-        userResponse.put("id", userPrincipal.getId());
-        userResponse.put("email", userPrincipal.getEmail());
-        userResponse.put("name", userPrincipal.getName());
-        userResponse.put("nickname", userPrincipal.getNickname());
-        return userResponse;
+        // Task 1.3: 기본 구조만 구현
     }
 }
