@@ -1,8 +1,6 @@
 package com.notice_board.notice_board.security;
 
 import org.springframework.stereotype.Component;
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class JwtTokenProvider {
